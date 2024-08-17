@@ -6,7 +6,7 @@ pub fn main() {
     println!("bytes: {:x?}", bytes);
     println!("decoded: {:?}", String::from_utf8(bytes.clone()).unwrap());
     
-    let byte_iter = ((0 as u8)..(255 as u8));
+    let byte_iter = (0 as u8)..(255 as u8);
     for key in byte_iter {
         let result= String::from_utf8(xor_decode(&bytes, key));
         let output = match result {
@@ -20,7 +20,7 @@ pub fn main() {
 }
 
 fn xor_decode(encoded: &Vec<u8>, key: u8) -> Vec<u8> {
-    let iter = (0..encoded.len());
+    let iter = 0..encoded.len();
     iter.map(|i|
         encoded[i] ^ key
     ).collect()

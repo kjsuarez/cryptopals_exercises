@@ -33,7 +33,7 @@ fn human_score(decoded:&str) -> usize {
 
 
 fn record_decode(encoded: &Vec<u8>, ledger: &mut HashMap<usize, Vec<String>>) {
-    let byte_iter = ((0 as u8)..(255 as u8));
+    let byte_iter = (0 as u8)..(255 as u8);
     for key in byte_iter {
         let result= String::from_utf8(xor_decode(&encoded, key));
         let output = match result {
@@ -54,7 +54,7 @@ fn record_decode(encoded: &Vec<u8>, ledger: &mut HashMap<usize, Vec<String>>) {
 }
 
 fn xor_decode(encoded: &Vec<u8>, key: u8) -> Vec<u8> {
-    let iter = (0..encoded.len());
+    let iter = 0..encoded.len();
     iter.map(|i|
         encoded[i] ^ key
     ).collect()

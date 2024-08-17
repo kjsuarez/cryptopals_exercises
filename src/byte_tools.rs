@@ -57,7 +57,7 @@ impl ByteString {
             let bytes_1 = self.bytes.as_ref().unwrap();
             let bytes_2 = other.bytes.as_ref().unwrap();
 
-            let byte_iter = (0..bytes_1.len());
+            let byte_iter = 0..bytes_1.len();
 
             let output: Vec<u8> = byte_iter.map(|index|
                 bytes_1[index] ^ bytes_2[index]
@@ -79,7 +79,7 @@ impl ByteString {
             let byte_one:u8 = hex_bytes[0] >> 2u8;
             let byte_two:u8 = ((hex_bytes[0] & 0b00000011) << 4u8) + (hex_bytes[1] >> 4u8);
             let byte_three:u8 = ((hex_bytes[1] & 0b00001111) << 2u8) + ((hex_bytes[2] & 0b11000000) >> 6u8);
-            let byte_four:u8 = (hex_bytes[2] & 0b00111111);
+            let byte_four:u8 = hex_bytes[2] & 0b00111111;
     
             let mut converted_bytes:Vec<u8> = vec![byte_one, byte_two, byte_three, byte_four];
             output.append(&mut converted_bytes);
