@@ -1,3 +1,4 @@
+#![allow(dead_code)]
 mod set_1;
 
 // use crate::set_1::problem_1::main as problem_1;
