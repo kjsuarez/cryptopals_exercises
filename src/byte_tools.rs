@@ -2,27 +2,18 @@
 pub struct ByteString {
     pub hex_string: String,
     pub bytes: Option<Vec<u8>>,
-    b64_bytes: Option<Vec<u8>>,
-    pub b64_string: Option<String>,
+    // b64_bytes: Option<Vec<u8>>,
+    // pub b64_string: Option<String>,
 }
 
 impl ByteString {
     pub fn from_hex_str(hex_str: &str) -> ByteString{
         let bytes = ByteString::hex_str_to_bytes(hex_str);
-        let b64_bytes: Option<Vec<u8>> = match &bytes {
-            Some(b) => ByteString::bytes_to_b64(b),
-            None => None,
-        };
-        let b64_string:Option<String> = match &b64_bytes {
-            Some(b) => Some(ByteString::b64_to_string(b)),
-            None => None,
-        };
-
         ByteString {
             hex_string: String::from(hex_str),
             bytes: bytes,
-            b64_bytes: b64_bytes,
-            b64_string: b64_string,
+            // b64_bytes: b64_bytes,
+            // b64_string: b64_string,
         }
     }
 
@@ -40,6 +31,18 @@ impl ByteString {
             ).collect();
             return Some(thing)
         }   
+    }
+
+    pub fn b64_string(&self) -> Option<String> {
+        let b64_bytes: Option<Vec<u8>> = match self.bytes.as_ref() {
+            Some(b) => ByteString::bytes_to_b64(b),
+            None => None,
+        };
+        let b64_string:Option<String> = match &b64_bytes {
+            Some(b) => Some(ByteString::b64_to_string(b)),
+            None => None,
+        };
+        b64_string
     }
 
     pub fn xor(&self, other: ByteString) -> Option<Vec<u8>> {

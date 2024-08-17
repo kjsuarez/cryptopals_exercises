@@ -9,7 +9,7 @@ pub fn main() {
     
     let b_str = ByteString::from_hex_str(&input);
 
-    let decoded = b_str.b64_string;
+    let decoded = b_str.b64_string();
     println!("decoded:{:?}", decoded);
     assert_eq!(decoded.unwrap(), String::from("SSdtIGtpbGxpbmcgeW91ciBicmFpbiBsaWtlIGEgcG9pc29ub3VzIG11c2hyb29t"));
 }
