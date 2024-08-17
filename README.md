@@ -1,0 +1,1 @@
+Working through the [cryptopals](https://cryptopals.com/) exercises in Rust.
