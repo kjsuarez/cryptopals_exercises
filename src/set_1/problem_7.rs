@@ -1,11 +1,11 @@
-use openssl::symm::{decrypt, encrypt, Cipher};
+use openssl::symm::{decrypt, Cipher};
 use std::fs::File;
 use std::io::Read;
 use base64::prelude::*;
 
 pub fn main(){
     let cipher = Cipher::aes_128_ecb();
-    let plain_text = "This is a test".as_bytes();
+    let _plain_text = "This is a test".as_bytes();
     let key = "YELLOW SUBMARINE".as_bytes();
     let iv = b"\x00\x01\x02\x03\x04\x05\x06\x07\x00\x01\x02\x03\x04\x05\x06\x07";
     

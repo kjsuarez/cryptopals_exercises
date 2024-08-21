@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::byte_tools::ByteString;
+
 // pub struct Encoder();
 // impl Encoder {}
 
@@ -88,7 +88,7 @@ pub fn guess_key_length_4_block_ham(encrypted: Vec<u8>) -> usize {
     for i in 2..(encrypted.len()/4)+1 {
         println!("is it {:?} chars long?", i);
         let mut score = 0;
-        let mut ham = 0;
+        let ham = 0;
         
         let x = encrypted.get(0..i);
         let y = encrypted.get(i..(i*2));
@@ -125,7 +125,7 @@ pub fn guess_key_of_size(encrypted: Vec<u8>, key_size: usize) -> Vec<Vec<u8>>{
     // for each block of key_size bytes
     let block_iter = (0..encrypted.len()).step_by(key_size);
     let mut pos_blocks: Vec<Vec<u8>> = Vec::new();
-    for i in 0..key_size {
+    for _i in 0..key_size {
         pos_blocks.push(Vec::new());
     }
 
@@ -146,7 +146,7 @@ pub fn guess_key_of_size(encrypted: Vec<u8>, key_size: usize) -> Vec<Vec<u8>>{
         let ledger = guess_single_char_decode(&block);
         let mut keys: Vec<&usize> = ledger.keys().collect();
         keys.sort_by(|a, b| b.cmp(a));
-        for el in &keys {
+        for _el in &keys {
         }
         possible_keys.push(ledger[keys[0]].clone());
     }
