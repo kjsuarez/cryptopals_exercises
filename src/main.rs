@@ -1,11 +1,15 @@
 #![allow(dead_code)]
 mod set_1;
 
+use set_1::problem_7;
+
 // use crate::set_1::problem_1::main as problem_1;
 // use crate::set_1::problem_2::main as problem_2;
 // use crate::set_1::problem_3::main as problem_3;
 // use crate::set_1::problem_4::main as problem_4;
-use crate::set_1::problem_5::main as problem_5;
+// use crate::set_1::problem_5::main as problem_5;
+// use crate::set_1::problem_6::main as problem_6;
+use crate::set_1::problem_7::main as problem_7;
 
 mod byte_tools;
 mod encoder;
@@ -18,5 +22,7 @@ fn main() {
     // println!("p3");
     // problem_3();
     // problem_4();
-    problem_5();
+    // problem_5();
+    // problem_6();
+    problem_7();
 }
