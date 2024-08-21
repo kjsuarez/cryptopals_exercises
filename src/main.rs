@@ -9,7 +9,8 @@ mod set_1;
 // use crate::set_1::problem_4::main as problem_4;
 // use crate::set_1::problem_5::main as problem_5;
 // use crate::set_1::problem_6::main as problem_6;
-use crate::set_1::problem_7::main as problem_7;
+// use crate::set_1::problem_7::main as problem_7;
+use crate::set_1::problem_8::main as problem_8;
 
 mod byte_tools;
 mod encoder;
@@ -24,5 +25,6 @@ fn main() {
     // problem_4();
     // problem_5();
     // problem_6();
-    problem_7();
+    // problem_7();
+    problem_8();
 }
