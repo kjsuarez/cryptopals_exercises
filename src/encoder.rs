@@ -59,8 +59,8 @@ pub fn human_readable_score(decrypted: &Vec<u8>) -> usize {
 pub fn guess_key_length(encrypted: Vec<u8>) -> usize {
     let mut ledger: HashMap<usize, Vec<usize>> = HashMap::new();
     for i in 2..(encrypted.len()/2)+1 {
-        let mut score = 0;
-        let mut ham = 0;
+        let score;
+        let ham;
         
         let x = encrypted.get(0..i);
         let y = encrypted.get(i..(i*2));
@@ -87,7 +87,7 @@ pub fn guess_key_length_4_block_ham(encrypted: Vec<u8>) -> usize {
     // let encrypted = vec![1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16];
     for i in 2..(encrypted.len()/4)+1 {
         println!("is it {:?} chars long?", i);
-        let mut score = 0;
+        let score;
         let ham = 0;
         
         let x = encrypted.get(0..i);
