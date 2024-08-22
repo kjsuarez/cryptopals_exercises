@@ -1,5 +1,5 @@
-use std::{collections::HashMap, process::Output};
-use openssl::symm::{encrypt,decrypt, Cipher, Mode, Crypter};
+use std::{collections::HashMap};
+use openssl::symm::{Cipher, Mode, Crypter};
 
 
 
@@ -164,7 +164,7 @@ pub fn cbc_block_decrypt(block: &[u8; 16], last_block: [u8; 16], key: &[u8]) -> 
     let decrypted_block = x.get(0..16).unwrap();
 
     for i in 0..16 {
-        output[i] = (decrypted_block[i] ^ last_block[i]);
+        output[i] = decrypted_block[i] ^ last_block[i];
     }
     output
 }
@@ -172,7 +172,7 @@ pub fn cbc_block_decrypt(block: &[u8; 16], last_block: [u8; 16], key: &[u8]) -> 
 pub fn cbc_block_encrypt(block: &[u8; 16], last_block: [u8; 16], key: &[u8]) -> [u8; 16] {
     let mut xord_block = block.clone();
     for i in 0..16 {
-        xord_block[i] = (block[i] ^ last_block[i]);
+        xord_block[i] = block[i] ^ last_block[i];
     }
 
     let mut encrypter = Crypter::new(
