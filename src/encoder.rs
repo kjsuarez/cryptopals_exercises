@@ -1,4 +1,6 @@
-use std::collections::HashMap;
+use std::{collections::HashMap, process::Output};
+use openssl::symm::{encrypt,decrypt, Cipher, Mode, Crypter};
+
 
 
 // pub struct Encoder();
@@ -82,9 +84,7 @@ pub fn guess_key_length(encrypted: Vec<u8>) -> usize {
 }
 
 pub fn guess_key_length_4_block_ham(encrypted: Vec<u8>) -> usize {
-    // println!("bytes: {:?}", &encrypted);
     let mut ledger: HashMap<usize, Vec<usize>> = HashMap::new();
-    // let encrypted = vec![1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16];
     for i in 2..(encrypted.len()/4)+1 {
         println!("is it {:?} chars long?", i);
         let score;
@@ -94,12 +94,6 @@ pub fn guess_key_length_4_block_ham(encrypted: Vec<u8>) -> usize {
         let y = encrypted.get(i..(i*2));
         let a = encrypted.get(i*2..i*3);
         let b = encrypted.get(i*3..(i*4));
-
-        // println!("x:{:?}", x);
-        // println!("y:{:?}", y);
-        // println!("a:{:?}", a);
-        // println!("b:{:?}", b);
-
         
         let ham_1 = hamming_distance(x.unwrap(), y.unwrap());
         let ham_2 = hamming_distance(a.unwrap(), b.unwrap());
@@ -152,4 +146,84 @@ pub fn guess_key_of_size(encrypted: Vec<u8>, key_size: usize) -> Vec<Vec<u8>>{
     }
     
     possible_keys
+}
+
+pub fn cbc_block_decrypt(block: &[u8; 16], last_block: [u8; 16], key: &[u8]) -> [u8; 16] {
+    let mut output: [u8;16] = [0; 16];
+    let mut encrypter = Crypter::new(
+        Cipher::aes_128_ecb(),
+        Mode::Decrypt,
+        key,
+        None
+    ).unwrap();
+    encrypter.pad(false);
+    // I don't know why I need a 32 byte buffer 
+    // for a 16 byte block but whatever
+    let mut x: [u8; 32] = [0; 32];
+    encrypter.update(block, &mut x);
+    let decrypted_block = x.get(0..16).unwrap();
+
+    for i in 0..16 {
+        output[i] = (decrypted_block[i] ^ last_block[i]);
+    }
+    output
+}
+
+pub fn cbc_block_encrypt(block: &[u8; 16], last_block: [u8; 16], key: &[u8]) -> [u8; 16] {
+    let mut xord_block = block.clone();
+    for i in 0..16 {
+        xord_block[i] = (block[i] ^ last_block[i]);
+    }
+
+    let mut encrypter = Crypter::new(
+        Cipher::aes_128_ecb(),
+        Mode::Encrypt,
+        key,
+        None
+    ).unwrap();
+    encrypter.pad(false);
+    let mut x: [u8; 32] = [0; 32];
+    encrypter.update(&xord_block, &mut x);
+    // I don't know why I need a 32 byte buffer 
+    // for a 16 byte block but whatever
+    <[u8; 16]>::try_from(x.get(0..16).unwrap()).unwrap()
+}
+
+pub fn cbc_ecrypt(plain_text:&[u8], key: &[u8]) -> Vec<u8> {
+    let iv: &[u8; 16] = b"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00";
+
+    let mut output:Vec<u8> = Vec::new();
+    let encode_iter = (0..plain_text.len()).step_by(16);
+    for i in encode_iter {
+        let block = <[u8; 16]>::try_from(plain_text.get(i..i+16).unwrap()).unwrap();
+        let mut last_block = *iv;
+        if i != 0 {
+            last_block = <[u8; 16]>::try_from(output.get(i-16..i).unwrap()).unwrap();
+        }
+  
+        let encrypted_block = cbc_block_encrypt(&block, last_block, key);
+        for byte in encrypted_block {
+            output.push(byte);
+        }
+    }
+    output
+}
+
+pub fn cbc_decrypt(encoded:&[u8], key: &[u8]) -> Vec<u8> {
+    let mut output: Vec<u8> = Vec::new();
+    let decoder_iter = (0..encoded.len()).step_by(16);
+    let iv: &[u8; 16] = b"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00";
+    
+    for i in decoder_iter {
+        let mut last_block = *iv;
+        if i != 0 {
+            last_block = <[u8; 16]>::try_from(encoded.get(i-16..i).unwrap()).unwrap();
+        }
+        let block = &<[u8; 16]>::try_from(encoded.get(i..i+16).unwrap()).unwrap();
+        let decoded_block = cbc_block_decrypt(block, last_block, key);
+        for byte in decoded_block{
+            output.push(byte);
+        }
+    }
+    output
 }
