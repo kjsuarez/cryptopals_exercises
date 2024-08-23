@@ -7,7 +7,7 @@ use crate::byte_tools::ByteString;
 pub fn main(){
     // The key is that you can see the 16byte blocks.
     // Count the recurances of each 16 byte block and pick 
-    // the string with the highest recurence.
+    // the string with the highest recurrence.
 
     let mut file = File::open("src/set_1/problem_8_input.txt").unwrap();
     let mut contents = String::new();
@@ -16,15 +16,15 @@ pub fn main(){
     let mut largest: (usize, &str) = (0,"");
     for line in lines_iter {
         let bytes = ByteString::from_hex_str(&(line.replace("\n", ""))).bytes.unwrap();
-        let recurences = count_recurences(bytes);
-        if recurences > largest.0 {
-            largest = (recurences, line);
+        let recurrences = count_recurrences(bytes);
+        if recurrences > largest.0 {
+            largest = (recurrences, line);
         }
     }
     println!("I think it's {:?}", largest);
 }
 
-fn count_recurences(encrypted: Vec<u8>) -> usize {
+fn count_recurrences(encrypted: Vec<u8>) -> usize {
     let mut ledger: HashMap<&[u8], usize> = HashMap::new();
     let byte_iter = (0..encrypted.len()).step_by(16);
     for i in byte_iter {

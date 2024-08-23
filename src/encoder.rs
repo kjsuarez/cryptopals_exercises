@@ -148,8 +148,19 @@ pub fn guess_key_of_size(encrypted: Vec<u8>, key_size: usize) -> Vec<Vec<u8>>{
     possible_keys
 }
 
-pub fn cbc_block_decrypt(block: &[u8; 16], last_block: [u8; 16], key: &[u8]) -> [u8; 16] {
-    let mut output: [u8;16] = [0; 16];
+pub fn pkcs7(input: &mut Vec<u8>, block_size: usize) {
+    let pad_size: usize = if input.len() == block_size {
+        0
+    } else {
+        block_size - (input.len() % block_size)
+    };
+
+    for _ in 0..pad_size {
+        input.push(pad_size as u8);
+    }
+}
+
+pub fn ebc_block_decrypt(block: &[u8; 16], key: &[u8]) -> [u8; 16] {
     let mut encrypter = Crypter::new(
         Cipher::aes_128_ecb(),
         Mode::Decrypt,
@@ -163,6 +174,29 @@ pub fn cbc_block_decrypt(block: &[u8; 16], last_block: [u8; 16], key: &[u8]) -> 
     encrypter.update(block, &mut x);
     let decrypted_block = x.get(0..16).unwrap();
 
+    <[u8; 16]>::try_from(decrypted_block).unwrap()
+}
+
+pub fn ebc_block_encrypt(block: &[u8; 16], key: &[u8]) -> [u8; 16] {
+    let mut encrypter = Crypter::new(
+        Cipher::aes_128_ecb(),
+        Mode::Encrypt,
+        key,
+        None
+    ).unwrap();
+    encrypter.pad(false);
+    // I don't know why I need a 32 byte buffer 
+    // for a 16 byte block but whatever
+    let mut x: [u8; 32] = [0; 32];
+    encrypter.update(block, &mut x);
+    let encrypted_block = x.get(0..16).unwrap();
+
+    <[u8; 16]>::try_from(encrypted_block).unwrap()
+}
+
+pub fn cbc_block_decrypt(block: &[u8; 16], last_block: [u8; 16], key: &[u8]) -> [u8; 16] {
+    let mut output: [u8;16] = [0; 16];
+    let decrypted_block = ebc_block_decrypt(&block, key);
     for i in 0..16 {
         output[i] = decrypted_block[i] ^ last_block[i];
     }
@@ -174,19 +208,7 @@ pub fn cbc_block_encrypt(block: &[u8; 16], last_block: [u8; 16], key: &[u8]) -> 
     for i in 0..16 {
         xord_block[i] = block[i] ^ last_block[i];
     }
-
-    let mut encrypter = Crypter::new(
-        Cipher::aes_128_ecb(),
-        Mode::Encrypt,
-        key,
-        None
-    ).unwrap();
-    encrypter.pad(false);
-    let mut x: [u8; 32] = [0; 32];
-    encrypter.update(&xord_block, &mut x);
-    // I don't know why I need a 32 byte buffer 
-    // for a 16 byte block but whatever
-    <[u8; 16]>::try_from(x.get(0..16).unwrap()).unwrap()
+    ebc_block_decrypt(&xord_block, key)
 }
 
 pub fn cbc_ecrypt(plain_text:&[u8], key: &[u8]) -> Vec<u8> {
@@ -224,6 +246,19 @@ pub fn cbc_decrypt(encoded:&[u8], key: &[u8]) -> Vec<u8> {
         for byte in decoded_block{
             output.push(byte);
         }
+    }
+    output
+}
+
+pub fn ebc_encrypt(plain_text:&[u8], key: &[u8]) -> Vec<u8> {
+    let mut output:Vec<u8> = Vec::new();
+    let encode_iter = (0..plain_text.len()).step_by(16);
+    for i in encode_iter {
+        let block = <[u8; 16]>::try_from(plain_text.get(i..i+16).unwrap()).unwrap();
+        let encrypted_block = ebc_block_encrypt(&block, key);
+        for byte in encrypted_block {
+            output.push(byte);
+        } 
     }
     output
 }
