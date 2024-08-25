@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 use crate::encoder;
 
-use openssl::encrypt;
+
 
 pub fn main() {
     // Assume block size hase been determined from repeated calls
@@ -28,7 +28,7 @@ pub fn main() {
 }
 
 fn get_block(mut plain_text: String) -> Vec<u8> {
-    let mut first_block = "xxxxxxxxxx".to_string();
+    let first_block = "xxxxxxxxxx".to_string();
     if plain_text.len() > 16 {
         plain_text.truncate(16);
     }

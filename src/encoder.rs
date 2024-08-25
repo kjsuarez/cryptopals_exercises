@@ -178,7 +178,7 @@ pub fn ebc_block_decrypt(block: &[u8; 16], key: &[u8]) -> [u8; 16] {
     // I don't know why I need a 32 byte buffer 
     // for a 16 byte block but whatever
     let mut x: [u8; 32] = [0; 32];
-    encrypter.update(block, &mut x);
+    let _ = encrypter.update(block, &mut x);
     let decrypted_block = x.get(0..16).unwrap();
 
     <[u8; 16]>::try_from(decrypted_block).unwrap()
@@ -195,7 +195,7 @@ pub fn ebc_block_encrypt(block: &[u8; 16], key: &[u8]) -> [u8; 16] {
     // I don't know why I need a 32 byte buffer 
     // for a 16 byte block but whatever
     let mut x: [u8; 32] = [0; 32];
-    encrypter.update(block, &mut x);
+    let _ = encrypter.update(block, &mut x);
     let encrypted_block = x.get(0..16).unwrap();
 
     <[u8; 16]>::try_from(encrypted_block).unwrap()
@@ -258,7 +258,7 @@ pub fn cbc_decrypt(encoded:&[u8], key: &[u8]) -> Vec<u8> {
 }
 
 pub fn ebc_encrypt(plain_text:&[u8], key: &[u8]) -> Vec<u8> {
-    if(plain_text.len() % 16 != 0) {
+    if plain_text.len() % 16 != 0 {
         panic!()
     }
     let mut output:Vec<u8> = Vec::new();

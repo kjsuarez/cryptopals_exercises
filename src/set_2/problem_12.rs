@@ -1,7 +1,7 @@
 use base64::prelude::*;
-use openssl::encrypt::{self, Decrypter};
+
 use crate::encoder;
-use std::{collections::HashMap, process::Output};
+use std::{collections::HashMap};
 
 // The point (I think) is to demonstrate that you can break 
 // a key if you have controle of the input?
@@ -37,7 +37,7 @@ fn decrypt(secret_input: &Vec<u8>, key:&[u8], block_size: usize) -> Vec<u8> {
         let result_block = result.get(0..block_size).unwrap().to_vec();
         dictionary.insert(result_block, i);
     }
-    let mut input:Vec<u8> = Vec::new();
+    let mut input:Vec<u8>;
     for i in 0..secret_input.len() {
         input = test_input(block_size - 1);
         input.push(secret_input[i]);
