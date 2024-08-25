@@ -1,6 +1,6 @@
 use std::{collections::HashMap};
 use openssl::symm::{Cipher, Mode, Crypter};
-
+use rand::Rng;
 
 
 // pub struct Encoder();
@@ -149,14 +149,21 @@ pub fn guess_key_of_size(encrypted: Vec<u8>, key_size: usize) -> Vec<Vec<u8>>{
 }
 
 pub fn pkcs7(input: &mut Vec<u8>, block_size: usize) {
-    let pad_size: usize = if input.len() == block_size {
-        0
-    } else {
-        block_size - (input.len() % block_size)
-    };
-
+    let pad_size: usize = block_size - (input.len() % block_size);
+    println!("before padding:{:?}", &input.len());
     for _ in 0..pad_size {
         input.push(pad_size as u8);
+    }
+    println!("after padding:{:?}", &input.len());
+}
+
+pub fn strip_pkcs7(input: &mut Vec<u8>) {
+    println!("bytes: {:?}", input);
+    println!("bytes to pop: {:?}", input.last());
+    
+    for _ in 0..*input.last().unwrap() {
+        println!("pop");
+        input.pop();
     }
 }
 
@@ -251,14 +258,41 @@ pub fn cbc_decrypt(encoded:&[u8], key: &[u8]) -> Vec<u8> {
 }
 
 pub fn ebc_encrypt(plain_text:&[u8], key: &[u8]) -> Vec<u8> {
+    if(plain_text.len() % 16 != 0) {
+        panic!()
+    }
     let mut output:Vec<u8> = Vec::new();
     let encode_iter = (0..plain_text.len()).step_by(16);
     for i in encode_iter {
+        println!("here:{:?}", &plain_text.len());
         let block = <[u8; 16]>::try_from(plain_text.get(i..i+16).unwrap()).unwrap();
         let encrypted_block = ebc_block_encrypt(&block, key);
         for byte in encrypted_block {
             output.push(byte);
         } 
+    }
+    output
+}
+
+pub fn ebc_decrypt(encrypted:&[u8], key: &[u8]) -> Vec<u8> {
+    println!("length of vec to decrypt:{:?}", encrypted.len());
+    let mut output:Vec<u8> = Vec::new();
+    let encode_iter = (0..encrypted.len()).step_by(16);
+    for i in encode_iter {
+        let block = <[u8; 16]>::try_from(encrypted.get(i..i+16).unwrap()).unwrap();
+        let plain_block = ebc_block_decrypt(&block, key);
+        for byte in plain_block {
+            output.push(byte);
+        } 
+    }
+    output
+}
+
+pub fn random_aes_key() -> [u8;16] {
+    let mut rng = rand::thread_rng();
+    let mut output = [0;16];
+    for i in 0..16 {
+       output[i] = rng.gen::<u8>() 
     }
     output
 }

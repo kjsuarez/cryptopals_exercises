@@ -27,7 +27,7 @@ pub fn main() {
 
 fn guess_encryption(input: &Vec<u8>) -> String {
     let recurrence = count_recurrences(input);
-    if recurrence > 2 {
+    if recurrence > 1 {
         String::from("ecb")
     } else {
         String::from("cbc")
