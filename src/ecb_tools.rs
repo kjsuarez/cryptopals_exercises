@@ -64,10 +64,10 @@ pub fn block_map(knowns: &BlackBoxKnowns) -> HashMap<usize, (usize, usize)>{
     let mut found:Vec<usize> = Vec::new();
     let mut input_len = 0;
     while found.len() < knowns.secret_length {
-        for block_i in (0..((knowns.prefix_length + input_len + knowns.secret_length)/knowns.block_length)) {
+        for block_i in 0..((knowns.prefix_length + input_len + knowns.secret_length)/knowns.block_length) {
 
             if block_i * knowns.block_length > knowns.prefix_length || knowns.prefix_length == 0 {
-                let secret_index = (((block_i+1) * knowns.block_length) - (knowns.prefix_length + input_len)- 1);
+                let secret_index = ((block_i+1) * knowns.block_length) - (knowns.prefix_length + input_len)- 1;
                 ledger.insert(secret_index, (input_len, block_i));
                 found.push(secret_index);
             }

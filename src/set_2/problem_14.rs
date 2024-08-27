@@ -1,4 +1,4 @@
-use crate::black_box::{self, BlackBox};
+use crate::black_box::{BlackBox};
 use crate::ecb_tools::{*, BlackBoxKnowns};
 pub fn main(){
 
