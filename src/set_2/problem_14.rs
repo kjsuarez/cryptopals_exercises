@@ -1,12 +1,9 @@
 use crate::black_box::{self, BlackBox};
 use crate::ecb_tools::{*, BlackBoxKnowns};
-
-
-// The point (I think) is to demonstrate that you can break 
-// a key if you have controle of the input?
-
 pub fn main(){
-    let black_box = BlackBox::new_with_no_prefix();
+
+
+    let black_box = BlackBox::new();
     let knowns = BlackBoxKnowns::new(black_box);
     
     // key: index of secret character (not including prefix or input)
@@ -48,4 +45,4 @@ pub fn main(){
     }
     println!("{:?}",String::from_utf8(decoded));
 }
-
+ 
