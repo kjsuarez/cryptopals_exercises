@@ -1,9 +1,9 @@
-use crate::black_box::{BlackBox};
+use crate::black_box::BlackBox;
 use crate::ecb_tools::{*, BlackBoxKnowns};
 pub fn main(){
 
 
-    let black_box = BlackBox::new();
+    let black_box = BlackBox::new_no_suffix();
     let knowns = BlackBoxKnowns::new(black_box);
     
     // key: index of secret character (not including prefix or input)

@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 use crate::encoder;
+use crate::pkcs7::*;
 
 
 
@@ -71,7 +72,7 @@ impl Profile {
         println!("unencrypted string:{:?}", profile.to_cookie());
         println!("1st 17:{:?}", profile.to_cookie().get(0..33));
         let mut cookie_bytes = profile.to_cookie().as_bytes().to_vec();
-        encoder::pkcs7(&mut cookie_bytes, 16);
+        pkcs7(&mut cookie_bytes, 16);
         println!("padded unencrypted:{:?}", &cookie_bytes);
         encoder::ebc_encrypt(&cookie_bytes, &Self::KEY)
     }
@@ -79,7 +80,7 @@ impl Profile {
     fn from_encrypted_cookie(encrypted_cookie: Vec<u8>) -> Profile {
         let mut cookie_bytes = encoder::ebc_decrypt(&encrypted_cookie, &Self::KEY);
         println!("decrypted:{:?}", String::from_utf8(cookie_bytes.clone()));
-        encoder::strip_pkcs7(&mut cookie_bytes);
+        strip_pkcs7(&mut cookie_bytes);
         let cookie = String::from_utf8(cookie_bytes).unwrap();
         let cookie_hash = parse_cookie(&cookie);
         Profile{
@@ -95,7 +96,7 @@ impl Profile {
 
     fn test() -> Profile {
         let mut cookie_bytes = "email=foo@bar.com&uid=10&role=user".as_bytes().to_vec();
-        encoder::pkcs7(&mut cookie_bytes, 16);
+        pkcs7(&mut cookie_bytes, 16);
         let encoded = encoder::ebc_encrypt(&cookie_bytes, &Self::KEY);
         Self::from_encrypted_cookie(encoded)
     }

@@ -148,23 +148,6 @@ pub fn guess_key_of_size(encrypted: Vec<u8>, key_size: usize) -> Vec<Vec<u8>>{
     possible_keys
 }
 
-pub fn pkcs7(input: &mut Vec<u8>, block_size: usize) {
-    let pad_size: usize = block_size - (input.len() % block_size);
-    for _ in 0..pad_size {
-        input.push(pad_size as u8);
-    }
-}
-
-pub fn strip_pkcs7(input: &mut Vec<u8>) {
-    println!("bytes: {:?}", input);
-    println!("bytes to pop: {:?}", input.last());
-    
-    for _ in 0..*input.last().unwrap() {
-        println!("pop");
-        input.pop();
-    }
-}
-
 pub fn ebc_block_decrypt(block: &[u8; 16], key: &[u8]) -> [u8; 16] {
     let mut encrypter = Crypter::new(
         Cipher::aes_128_ecb(),
@@ -213,7 +196,7 @@ pub fn cbc_block_encrypt(block: &[u8; 16], last_block: [u8; 16], key: &[u8]) -> 
     for i in 0..16 {
         xord_block[i] = block[i] ^ last_block[i];
     }
-    ebc_block_decrypt(&xord_block, key)
+    ebc_block_encrypt(&xord_block, key)
 }
 
 pub fn cbc_ecrypt(plain_text:&[u8], key: &[u8]) -> Vec<u8> {

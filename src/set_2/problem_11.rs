@@ -1,4 +1,5 @@
 use crate::encoder;
+use crate::pkcs7::*;
 use std::collections::HashMap;
 use rand::Rng;
 
@@ -86,7 +87,7 @@ fn padded_plaintext(input: &mut Vec<u8>) -> Vec<u8> {
     output.append(&mut prefix);
     output.append(input);
     output.append(&mut suffix);
-    encoder::pkcs7(&mut output, 16);
+    pkcs7(&mut output, 16);
     output
 }
 

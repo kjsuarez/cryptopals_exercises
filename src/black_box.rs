@@ -1,12 +1,14 @@
 use crate::encoder;
 use rand::Rng;
 use base64::prelude::*;
+use crate::pkcs7::*;
 
 
 
 pub struct BlackBox{
     key: [u8;16],
     prefix: Vec<u8>,
+    suffix: Vec<u8>,
 }
 
 impl BlackBox {
@@ -21,31 +23,52 @@ impl BlackBox {
         out
     }
 
-    pub fn new() -> BlackBox{
+    pub fn new_specific(prefix:Vec<u8>, suffix: Vec<u8>) -> BlackBox{
         BlackBox{
             key: encoder::random_aes_key(),
-            prefix: Self::random_bytes()
+            prefix: prefix,
+            suffix: suffix
+        }
+    }
+
+    pub fn new_no_suffix() -> BlackBox{
+        BlackBox{
+            key: encoder::random_aes_key(),
+            prefix: Self::random_bytes(),
+            suffix: "".as_bytes().to_vec()
         }
     }
 
     pub fn new_with_no_prefix() -> BlackBox{
         BlackBox{
             key: encoder::random_aes_key(),
-            prefix: "".as_bytes().to_vec()
+            prefix: "".as_bytes().to_vec(),
+            suffix: "".as_bytes().to_vec()
+        }
+    }
+
+    pub fn stable_with_no_prefix() -> BlackBox{
+        BlackBox{
+            key: *b"YELLOW SUBMARINE",
+            //    0123456789abcdef
+            prefix: "".as_bytes().to_vec(),
+            suffix: "".as_bytes().to_vec()
         }
     }
 
     pub fn new_with_short_prefix() -> BlackBox{
         BlackBox{
             key: encoder::random_aes_key(),
-            prefix: "0123".as_bytes().to_vec()
+            prefix: "0123".as_bytes().to_vec(),
+            suffix: "".as_bytes().to_vec()
         }
     }
 
     pub fn new_with_big_prefix() -> BlackBox{
         BlackBox{
             key: encoder::random_aes_key(),
-            prefix: "0123456789abcdef0".as_bytes().to_vec()
+            prefix: "0123456789abcdef0".as_bytes().to_vec(),
+            suffix: "".as_bytes().to_vec()
         }
     }
 
@@ -58,10 +81,28 @@ impl BlackBox {
         plain.append(input);
         plain.append(&mut secret_bytes);
         // ecb encrypt result with related key
-        encoder::pkcs7(&mut plain, 16);
+        pkcs7(&mut plain, 16);
         let encrypted = encoder::ebc_encrypt(&plain, &self.key);
         // return result
         encrypted
+    }
+
+    pub fn cbc_encrypt(&self, input: &mut Vec<u8>) -> Vec<u8> {
+        let mut plain: Vec<u8> = Vec::new();
+        let mut prefix = self.prefix.clone();
+        let mut suffix = self.suffix.clone();
+        // append secret bytes to end of input
+        plain.append(&mut prefix);
+        plain.append(input);
+        plain.append(&mut suffix);
+        pkcs7(&mut plain, 16);
+        encoder::cbc_ecrypt(&plain, &self.key)
+    }
+
+    pub fn cbc_decrypt(&self, input: &mut Vec<u8>) -> Vec<u8> {
+        let mut input = encoder::cbc_decrypt(input, &self.key);
+        strip_pkcs7(&mut input);
+        input
     }
 }
 
