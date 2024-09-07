@@ -1,4 +1,4 @@
-use crate::{black_box::{self, BlackBox}, encoder};
+use crate::{black_box::{self, BlackBox}};
 use crate::utils;
 
 pub fn main(){
