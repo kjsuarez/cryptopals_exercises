@@ -4,7 +4,7 @@ use base64::prelude::*;
 use crate::pkcs7::*;
 
 
-
+#[derive(Debug, Clone)]
 pub struct BlackBox{
     key: [u8;16],
     prefix: Vec<u8>,
@@ -31,7 +31,7 @@ impl BlackBox {
         }
     }
 
-    pub fn new_no_suffix() -> BlackBox{
+    pub fn new_random_prefix() -> BlackBox{
         BlackBox{
             key: encoder::random_aes_key(),
             prefix: Self::random_bytes(),
@@ -39,7 +39,7 @@ impl BlackBox {
         }
     }
 
-    pub fn new_with_no_prefix() -> BlackBox{
+    pub fn new() -> BlackBox{
         BlackBox{
             key: encoder::random_aes_key(),
             prefix: "".as_bytes().to_vec(),
@@ -47,7 +47,7 @@ impl BlackBox {
         }
     }
 
-    pub fn stable_with_no_prefix() -> BlackBox{
+    pub fn new_stable() -> BlackBox{
         BlackBox{
             key: *b"YELLOW SUBMARINE",
             //    0123456789abcdef
@@ -99,9 +99,27 @@ impl BlackBox {
         encoder::cbc_ecrypt(&plain, &self.key)
     }
 
+    pub fn cbc_encrypt_with_iv(&self,iv: &[u8], input: &mut Vec<u8>) -> Vec<u8> {
+        let mut plain: Vec<u8> = Vec::new();
+        let mut prefix = self.prefix.clone();
+        let mut suffix = self.suffix.clone();
+        // append secret bytes to end of input
+        plain.append(&mut prefix);
+        plain.append(input);
+        plain.append(&mut suffix);
+        pkcs7(&mut plain, 16);
+        encoder::cbc_ecrypt_with_iv(iv,&plain, &self.key)
+    }
+
     pub fn cbc_decrypt(&self, input: &mut Vec<u8>) -> Vec<u8> {
         let mut input = encoder::cbc_decrypt(input, &self.key);
         strip_pkcs7(&mut input);
+        input
+    }
+
+    pub fn cbc_decrypt_keep_padding(&self, input: &mut Vec<u8>, iv: &Vec<u8>) -> Vec<u8> {
+        let input = encoder::cbc_decrypt_with_iv(iv, input, &self.key);
+        // strip_pkcs7(&mut input);
         input
     }
 }

@@ -18,6 +18,10 @@ pub fn strip(mut input: Vec<u8>) -> Result<Vec<u8>, String>{
     }
     
     let padding_byte = *input.last().unwrap();
+    if padding_byte < 1 {
+        return Err("Incorrect number of padding bytes".to_string());
+    }
+        
     for _ in 0..padding_byte {
         if input.last().unwrap() == &padding_byte {
             input.pop();

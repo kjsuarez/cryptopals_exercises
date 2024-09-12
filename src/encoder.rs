@@ -219,10 +219,48 @@ pub fn cbc_ecrypt(plain_text:&[u8], key: &[u8]) -> Vec<u8> {
     output
 }
 
+pub fn cbc_ecrypt_with_iv(iv: &[u8], plain_text:&[u8], key: &[u8]) -> Vec<u8> {
+    let iv: &[u8; 16] = &<[u8; 16]>::try_from(iv).unwrap();
+    let mut output:Vec<u8> = Vec::new();
+    let encode_iter = (0..plain_text.len()).step_by(16);
+    for i in encode_iter {
+        let block = <[u8; 16]>::try_from(plain_text.get(i..i+16).unwrap()).unwrap();
+        let mut last_block = *iv;
+        if i != 0 {
+            last_block = <[u8; 16]>::try_from(output.get(i-16..i).unwrap()).unwrap();
+        }
+  
+        let encrypted_block = cbc_block_encrypt(&block, last_block, key);
+        for byte in encrypted_block {
+            output.push(byte);
+        }
+    }
+    output
+}
+
 pub fn cbc_decrypt(encoded:&[u8], key: &[u8]) -> Vec<u8> {
     let mut output: Vec<u8> = Vec::new();
     let decoder_iter = (0..encoded.len()).step_by(16);
     let iv: &[u8; 16] = b"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00";
+    
+    for i in decoder_iter {
+        let mut last_block = *iv;
+        if i != 0 {
+            last_block = <[u8; 16]>::try_from(encoded.get(i-16..i).unwrap()).unwrap();
+        }
+        let block = &<[u8; 16]>::try_from(encoded.get(i..i+16).unwrap()).unwrap();
+        let decoded_block = cbc_block_decrypt(block, last_block, key);
+        for byte in decoded_block{
+            output.push(byte);
+        }
+    }
+    output
+}
+
+pub fn cbc_decrypt_with_iv(iv: &[u8], encoded:&[u8], key: &[u8]) -> Vec<u8> {
+    let mut output: Vec<u8> = Vec::new();
+    let decoder_iter = (0..encoded.len()).step_by(16);
+    let iv: &[u8; 16] = &<[u8; 16]>::try_from(iv).unwrap();
     
     for i in decoder_iter {
         let mut last_block = *iv;

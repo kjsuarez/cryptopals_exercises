@@ -6,7 +6,7 @@ use crate::ecb_tools::{*, BlackBoxKnowns};
 // a key if you have controle of the input?
 
 pub fn main(){
-    let black_box = BlackBox::new_with_no_prefix();
+    let black_box = BlackBox::new();
     let knowns = BlackBoxKnowns::new(black_box);
     
     // key: index of secret character (not including prefix or input)
